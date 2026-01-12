@@ -36,10 +36,12 @@ select:focus, input:focus { outline: none; border-color: var(--accent); }
 .btn-primary:hover { background: var(--accent-hover); }
 .btn-success { background: var(--success); color: white; }
 .btn-success:hover { background: #2ea043; }
-.verse-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
-.arabic-text { font-family: 'Scheherazade New', 'Traditional Arabic', serif; font-size: 2rem; line-height: 2.2; text-align: right; direction: rtl; color: var(--text-primary); padding: 20px 0; }
-.verse-info { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border); margin-top: 12px; }
-.verse-key { font-size: 0.875rem; color: var(--text-secondary); background: var(--bg-card); padding: 4px 10px; border-radius: 6px; }
+.verse-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 16px; display: flex; flex-direction: column; align-items: center; }
+.verse-header { display: flex; align-items: center; justify-content: flex-end; width: 100%; gap: 16px; direction: rtl; }
+.arabic-text { font-family: 'Scheherazade New', 'Traditional Arabic', serif; font-size: 2.5rem; line-height: 2; color: var(--text-primary); }
+.verse-badge { width: 50px; height: 50px; border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--accent); position: relative; }
+.verse-badge::before { content: ''; position: absolute; width: 60px; height: 60px; border: 1px solid var(--border); border-radius: 50%; }
+.verse-badge::after { content: ''; position: absolute; width: 40px; height: 40px; border: 1px solid var(--border); border-radius: 50%; }
 audio { width: 100%; margin-top: 12px; border-radius: 8px; }
 .step-info { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 16px; padding: 12px 16px; background: var(--bg-secondary); border-radius: 8px; border-left: 3px solid var(--accent); }
 .complete { text-align: center; padding: 60px 20px; }
@@ -98,7 +100,7 @@ function showStep() {{
     verses.forEach(v => {{
         const text = document.getElementById('v' + v).value;
         const audio = 'https://verses.quran.com/Alafasy/mp3/' + String(chapter).padStart(3,'0') + String(v).padStart(3,'0') + '.mp3';
-        html += '<div class="verse-card"><div class="arabic-text">' + text + '</div><div class="verse-info"><span class="verse-key">' + chapter + ':' + v + '</span></div><audio src="' + audio + '" controls></audio></div>';
+        html += '<div class="verse-card"><div class="verse-header"><div class="arabic-text">' + text + '</div><div class="verse-badge">' + v + '</div></div><audio src="' + audio + '" controls></audio></div>';
     }});
     html += '<button onclick="nextRep()" class="btn btn-success">Next →</button>';
     document.getElementById('current-step').innerHTML = html;
