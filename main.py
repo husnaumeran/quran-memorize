@@ -28,7 +28,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
 .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 @media (max-width: 768px) { .form-grid { grid-template-columns: repeat(2, 1fr); } }
-label { display: block; font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 6px; }
+label { display: flex; align-items: center; gap: 6px; font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 6px; }
+.help-btn { width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--text-secondary); background: transparent; color: var(--text-secondary); font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.help-btn:hover { border-color: var(--accent); color: var(--accent); }
+.help-popup { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; }
+.help-popup.active { display: flex; }
+.help-content { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; max-width: 500px; margin: 20px; }
+.help-content h3 { color: var(--accent); margin-bottom: 12px; }
+.help-content p { color: var(--text-secondary); line-height: 1.6; }
+.help-content button { margin-top: 16px; padding: 8px 16px; }
 select, input { width: 100%; padding: 10px 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 1rem; }
 select:focus, input:focus { outline: none; border-color: var(--accent); }
 .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 20px; }
@@ -62,20 +70,38 @@ def home():
     <style>{CSS}</style>
 </head><body>
     <div class="container">
-        <div class="header"><h1>Quran Memorize</h1></div>
+        <div class="header"><h1>Quran Memorize</h1><button type="button" class="help-btn" style="margin-top:8px" onclick="showHelp('howto')">How does this app work?</button></div>
         <div class="card">
             <form hx-post="/memorize" hx-target="#session" hx-swap="innerHTML">
                 <div class="form-grid">
-                    <div><label>Chapter</label><select name="chapter">{opts}</select></div>
-                    <div><label>Start Verse</label><input type="number" name="start" value="1" min="1"></div>
-                    <div><label>End Verse</label><input type="number" name="end" value="5" min="1"></div>
-                    <div><label>Repeats</label><input type="number" name="repeats" value="3" min="1" max="10"></div>
+                    <div><label>Chapter <button type="button" class="help-btn" onclick="showHelp('chapter')">?</button></label><select name="chapter">{opts}</select></div>
+                    <div><label>Start Verse <button type="button" class="help-btn" onclick="showHelp('start')">?</button></label><input type="number" name="start" value="1" min="1"></div>
+                    <div><label>End Verse <button type="button" class="help-btn" onclick="showHelp('end')">?</button></label><input type="number" name="end" value="5" min="1"></div>
+                    <div><label>Repeats <button type="button" class="help-btn" onclick="showHelp('repeats')">?</button></label><input type="number" name="repeats" value="3" min="1" max="10"></div>
                 </div>
                 <button type="submit" class="btn btn-primary">Start Memorizing</button>
             </form>
         </div>
         <div id="session"></div>
     </div>
+    <div id="help-popup" class="help-popup" onclick="hideHelp()">
+        <div class="help-content" onclick="event.stopPropagation()">
+            <h3 id="help-title"></h3>
+            <p id="help-text"></p>
+            <button class="btn btn-primary" onclick="hideHelp()">Got it</button>
+        </div>
+    </div>
+    <script>
+    const helpData = {
+        chapter: {title: 'Chapter (Surah)', text: 'Select which chapter (Surah) of the Quran you want to memorize. The Quran has 114 chapters, each varying in length.'},
+        start: {title: 'Start Verse', text: 'The verse number to begin memorizing from. Each chapter has a different number of verses (Ayat).'},
+        end: {title: 'End Verse', text: 'The verse number to stop at. Select a small range (3-5 verses) for effective memorization sessions.'},
+        repeats: {title: 'Repetitions', text: 'How many times each verse (and verse combination) will be repeated. Repetition is key to memorization - 3 times is a good default.'},
+        howto: {title: 'How It Works', text: 'This app uses the proven memorization technique: First, each verse is repeated individually. Then verses are combined progressively (1+2, then 1+2+3, etc.) with repetitions. Audio plays automatically - just listen and recite along until the session completes.'}
+    };
+    function showHelp(key) { document.getElementById('help-title').textContent = helpData[key].title; document.getElementById('help-text').textContent = helpData[key].text; document.getElementById('help-popup').classList.add('active'); }
+    function hideHelp() { document.getElementById('help-popup').classList.remove('active'); }
+    </script>
 </body></html>"""
 
 @app.post("/memorize", response_class=HTMLResponse)
