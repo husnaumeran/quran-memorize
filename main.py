@@ -101,6 +101,8 @@ function showStep() {{
     }});
     html += '<button onclick="nextRep()" class="btn btn-success">Next →</button>';
     document.getElementById('current-step').innerHTML = html;
+    const audios = document.getElementById('current-step').querySelectorAll('audio');
+    if (audios.length > 0) audios[0].play().catch(e => console.log('Autoplay blocked:', e));
 }}
 function nextRep() {{
     repIdx++;
