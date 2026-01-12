@@ -92,15 +92,15 @@ def home():
         </div>
     </div>
     <script>
-    const helpData = {
-        chapter: {title: 'Chapter (Surah)', text: 'Select which chapter (Surah) of the Quran you want to memorize. The Quran has 114 chapters, each varying in length.'},
-        start: {title: 'Start Verse', text: 'The verse number to begin memorizing from. Each chapter has a different number of verses (Ayat).'},
-        end: {title: 'End Verse', text: 'The verse number to stop at. Select a small range (3-5 verses) for effective memorization sessions.'},
-        repeats: {title: 'Repetitions', text: 'How many times each verse (and verse combination) will be repeated. Repetition is key to memorization - 3 times is a good default.'},
-        howto: {title: 'How It Works', text: 'This app uses the proven memorization technique: First, each verse is repeated individually. Then verses are combined progressively (1+2, then 1+2+3, etc.) with repetitions. Audio plays automatically - just listen and recite along until the session completes.'}
-    };
-    function showHelp(key) { document.getElementById('help-title').textContent = helpData[key].title; document.getElementById('help-text').textContent = helpData[key].text; document.getElementById('help-popup').classList.add('active'); }
-    function hideHelp() { document.getElementById('help-popup').classList.remove('active'); }
+    const helpData = {{
+        chapter: {{title: 'Chapter (Surah)', text: 'Select which chapter (Surah) of the Quran you want to memorize. The Quran has 114 chapters, each varying in length.'}},
+        start: {{title: 'Start Verse', text: 'The verse number to begin memorizing from. Each chapter has a different number of verses (Ayat).'}},
+        end: {{title: 'End Verse', text: 'The verse number to stop at. Select a small range (3-5 verses) for effective memorization sessions.'}},
+        repeats: {{title: 'Repetitions', text: 'How many times each verse (and verse combination) will be repeated. Repetition is key to memorization - 3 times is a good default.'}},
+        howto: {{title: 'How It Works', text: 'This app uses the proven memorization technique: First, each verse is repeated individually. Then verses are combined progressively (1+2, then 1+2+3, etc.) with repetitions. Audio plays automatically - just listen and recite along until the session completes.'}}
+    }};
+    function showHelp(key) {{ document.getElementById('help-title').textContent = helpData[key].title; document.getElementById('help-text').textContent = helpData[key].text; document.getElementById('help-popup').classList.add('active'); }}
+    function hideHelp() {{ document.getElementById('help-popup').classList.remove('active'); }}
     </script>
 </body></html>"""
 
