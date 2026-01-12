@@ -23,7 +23,7 @@ CSS = """
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; }
 .container { max-width: 900px; margin: 0 auto; padding: 20px; }
-.header { text-align: center; padding: 30px 0; border-bottom: 1px solid var(--border); margin-bottom: 30px; }
+.header { text-align: center; padding: 30px 0; border-bottom: 1px solid var(--border); margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .header h1 { font-size: 2.5rem; font-weight: 700; background: linear-gradient(90deg, var(--accent), #a371f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
 .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
@@ -99,9 +99,9 @@ def home():
         start: {{title: 'Start Verse', text: 'The verse number to begin memorizing from. Each chapter has a different number of verses (Ayat).'}},
         end: {{title: 'End Verse', text: 'The verse number to stop at. Select a small range (3-5 verses) for effective memorization sessions.'}},
         repeats: {{title: 'Repetitions', text: 'How many times each verse (and verse combination) will be repeated. Repetition is key to memorization - 3 times is a good default.'}},
-        howto: {{title: 'How It Works', text: 'This app uses the proven memorization technique: First, each verse is repeated individually. Then verses are combined progressively (1+2, then 1+2+3, etc.) with repetitions. Audio plays automatically - just listen and recite along until the session completes.'}}
+        howto: {{title: 'How It Works', text: '<ul style="text-align:left;margin:0;padding-left:20px"><li>Each verse is repeated individually first</li><li>Verses are then combined progressively (1+2, then 1+2+3, etc.)</li><li>Each combination is repeated multiple times</li><li>Audio plays automatically - just listen and recite along</li></ul>'}}
     }};
-    function showHelp(key) {{ document.getElementById('help-title').textContent = helpData[key].title; document.getElementById('help-text').textContent = helpData[key].text; document.getElementById('help-popup').classList.add('active'); }}
+    function showHelp(key) {{ document.getElementById('help-title').textContent = helpData[key].title; document.getElementById('help-text').innerHTML = helpData[key].text; document.getElementById('help-popup').classList.add('active'); }}
     function hideHelp() {{ document.getElementById('help-popup').classList.remove('active'); }}
     </script>
 </body></html>"""
