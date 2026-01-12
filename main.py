@@ -78,7 +78,7 @@ def home():
 </head><body>
     <div class="container">
         <div class="header"><h1>Quran Memorize</h1><button type="button" class="help-link" onclick="showHelp('howto')">How does this app work?</button></div>
-        <div class="donate-banner"><span>☕ Enjoying this free app?</span><a href="https://buymeacoffee.com/yourname" target="_blank" class="donate-btn">Support the Developer</a></div>
+        <div class="donate-banner"><span>☕ Enjoying this free app?</span><a href="https://buymeacoffee.com/husnau" target="_blank" class="donate-btn">Support the Developer</a></div>
         <div class="card">
             <form hx-post="/memorize" hx-target="#session" hx-swap="innerHTML">
                 <div class="form-grid">
