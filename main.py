@@ -31,7 +31,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 label { display: flex; align-items: center; gap: 6px; font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 6px; }
 .help-btn { width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--text-secondary); background: transparent; color: var(--text-secondary); font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
 .help-btn:hover { border-color: var(--accent); color: var(--accent); }
-.help-link { background: transparent; border: none; color: var(--text-secondary); font-size: 0.875rem; cursor: pointer; text-decoration: underline; }
+.help-link { background: transparent; border: none; color: var(--text-secondary); font-size: 0.875rem; cursor: pointer; text-decoration: underline; white-space: nowrap; }
 .help-link:hover { color: var(--accent); }
 .help-popup { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; }
 .help-popup.active { display: flex; }
