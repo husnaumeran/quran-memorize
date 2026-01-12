@@ -66,7 +66,7 @@ function showStep() {{
     let html = '<div class="mb-4 text-lg font-semibold">Verses ' + verses.join(', ') + ' — Rep ' + (repIdx+1) + '/' + reps + '</div>';
     verses.forEach(v => {{
         const text = document.getElementById('v' + v).value;
-        const audio = 'https://verses.quran.com/7/' + String(chapter).padStart(3,'0') + String(v).padStart(3,'0') + '.mp3';
+        const audio = 'https://verses.quran.com/Alafasy/mp3/' + String(chapter).padStart(3,'0') + String(v).padStart(3,'0') + '.mp3';
         html += '<div class="bg-white rounded-lg p-6 mb-4 shadow"><div class="text-3xl text-right" dir="rtl" style="font-family: Scheherazade New; line-height:2">' + text + '</div><div class="text-sm text-gray-500 mt-2">' + chapter + ':' + v + '</div><audio src="' + audio + '" controls class="w-full mt-2"></audio></div>';
     }});
     html += '<button onclick="nextRep()" class="w-full mt-4 bg-green-600 text-white py-3 rounded-lg text-lg hover:bg-green-700">Next →</button>';
