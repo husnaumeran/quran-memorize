@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
-from monsterui.all import *
+from fasthtml.common import *
 import httpx
 
 app = FastAPI()
-hdrs = Theme.blue.headers()
+
 
 def get_chapters(): return httpx.get("https://api.quran.com/api/v4/chapters").json()['chapters']
 
