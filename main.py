@@ -33,6 +33,11 @@ label { display: flex; align-items: center; gap: 6px; font-size: 0.875rem; color
 .help-btn:hover { border-color: var(--accent); color: var(--accent); }
 .help-link { background: transparent; border: none; color: var(--text-secondary); font-size: 0.875rem; cursor: pointer; text-decoration: underline; white-space: nowrap; }
 .help-link:hover { color: var(--accent); }
+.donate-banner { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 10px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 20px; font-size: 0.875rem; color: var(--text-secondary); }
+.donate-btn { background: #ffdd00; color: #000; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.8rem; }
+.donate-btn:hover { background: #e6c700; }
+.ad-space { text-align: center; padding: 20px; margin-top: 30px; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 0.75rem; }
+.ad-space a { color: var(--accent); }
 .help-popup { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; }
 .help-popup.active { display: flex; }
 .help-content { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; max-width: 500px; margin: 20px; }
@@ -73,6 +78,7 @@ def home():
 </head><body>
     <div class="container">
         <div class="header"><h1>Quran Memorize</h1><button type="button" class="help-link" onclick="showHelp('howto')">How does this app work?</button></div>
+        <div class="donate-banner"><span>☕ Enjoying this free app?</span><a href="https://buymeacoffee.com/yourname" target="_blank" class="donate-btn">Support the Developer</a></div>
         <div class="card">
             <form hx-post="/memorize" hx-target="#session" hx-swap="innerHTML">
                 <div class="form-grid">
@@ -85,6 +91,7 @@ def home():
             </form>
         </div>
         <div id="session"></div>
+        <div class="ad-space"><small>Ad space - <a href="mailto:your@email.com">Advertise here</a></small></div>
     </div>
     <div id="help-popup" class="help-popup" onclick="hideHelp()">
         <div class="help-content" onclick="event.stopPropagation()">
