@@ -84,12 +84,13 @@ def memorize(chapter: int = Form(...), start: int = Form(...), end: int = Form(.
     hidden = "".join([f'<input type="hidden" id="v{v["verse_number"]}" value="{v["text_uthmani"]}">' for v in verses.values()])
     return f"""
 <h2 style="font-size:1.5rem;margin-bottom:16px">Memorizing {chapter}:{start}-{end}</h2>
-<div id="current-step"></div>
+<div id="current-step"><button onclick="startSession()" class="btn btn-success" style="font-size:1.5rem;padding:20px 40px">▶ Start Session</button></div>
 {hidden}
 <script>
 const pattern = {pattern_data};
 const chapter = {chapter};
 let stepIdx = 0, repIdx = 0;
+function startSession() {{ showStep(); }}
 function showStep() {{
     if (stepIdx >= pattern.length) {{ document.getElementById('current-step').innerHTML = '<div class="complete"><div class="complete-icon">✅</div><div class="complete-text">Session Complete!</div></div>'; return; }}
     const [verses, reps] = pattern[stepIdx];
