@@ -1,5 +1,5 @@
 fastapi
 uvicorn
 httpx
-monsterui
+python-fasthtml
 python-multipart
