@@ -80,7 +80,7 @@ def home():
 def memorize(chapter: int = Form(...), start: int = Form(...), end: int = Form(...), repeats: int = Form(...)):
     verses = get_verses(chapter, start, end)
     pattern = memorize_pattern(end - start + 1, repeats)
-    pattern_data = [([start + v - 1 for v in nums], reps) for nums, reps in pattern]
+    pattern_data = [[([start + v - 1 for v in nums]), reps] for nums, reps in pattern]
     hidden = "".join([f'<input type="hidden" id="v{v["verse_number"]}" value="{v["text_uthmani"]}">' for v in verses.values()])
     return f"""
 <h2 style="font-size:1.5rem;margin-bottom:16px">Memorizing {chapter}:{start}-{end}</h2>
