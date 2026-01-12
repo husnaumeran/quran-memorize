@@ -18,28 +18,58 @@ def memorize_pattern(n_verses, repeats=3):
         if i > 1: pattern.append((list(range(1, i+1)), repeats))
     return pattern
 
+CSS = """
+:root { --bg-primary: #0d1117; --bg-secondary: #161b22; --bg-card: #1c2128; --text-primary: #e6edf3; --text-secondary: #8b949e; --accent: #2f81f7; --accent-hover: #388bfd; --border: #30363d; --success: #238636; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; }
+.container { max-width: 900px; margin: 0 auto; padding: 20px; }
+.header { text-align: center; padding: 30px 0; border-bottom: 1px solid var(--border); margin-bottom: 30px; }
+.header h1 { font-size: 2.5rem; font-weight: 700; background: linear-gradient(90deg, var(--accent), #a371f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+.form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+@media (max-width: 768px) { .form-grid { grid-template-columns: repeat(2, 1fr); } }
+label { display: block; font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 6px; }
+select, input { width: 100%; padding: 10px 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 1rem; }
+select:focus, input:focus { outline: none; border-color: var(--accent); }
+.btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 20px; }
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-success { background: var(--success); color: white; }
+.btn-success:hover { background: #2ea043; }
+.verse-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+.arabic-text { font-family: 'Scheherazade New', 'Traditional Arabic', serif; font-size: 2rem; line-height: 2.2; text-align: right; direction: rtl; color: var(--text-primary); padding: 20px 0; }
+.verse-info { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border); margin-top: 12px; }
+.verse-key { font-size: 0.875rem; color: var(--text-secondary); background: var(--bg-card); padding: 4px 10px; border-radius: 6px; }
+audio { width: 100%; margin-top: 12px; border-radius: 8px; }
+.step-info { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 16px; padding: 12px 16px; background: var(--bg-secondary); border-radius: 8px; border-left: 3px solid var(--accent); }
+.complete { text-align: center; padding: 60px 20px; }
+.complete-icon { font-size: 4rem; margin-bottom: 16px; }
+.complete-text { font-size: 1.5rem; color: var(--success); }
+"""
+
 @app.get("/", response_class=HTMLResponse)
 def home():
     chapters = get_chapters()
-    opts = "".join([f'<option value="{c["id"]}">{c["id"]}. {c["name_simple"]}</option>' for c in chapters])
+    opts = "".join([f'<option value="{c["id"]}">{c["id"]}. {c["name_simple"]} ({c["name_arabic"]})</option>' for c in chapters])
     return f"""<!DOCTYPE html>
 <html><head>
     <title>Quran Memorize</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&display=swap">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-</head><body class="min-h-screen bg-gray-100">
-    <div class="max-w-4xl mx-auto p-4">
-        <h1 class="text-4xl font-bold text-center my-8">Quran Memorize</h1>
-        <div class="bg-white p-6 rounded-lg shadow mb-6">
+    <style>{CSS}</style>
+</head><body>
+    <div class="container">
+        <div class="header"><h1>Quran Memorize</h1></div>
+        <div class="card">
             <form hx-post="/memorize" hx-target="#session" hx-swap="innerHTML">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div><label class="block mb-1">Chapter</label><select name="chapter" class="w-full p-2 border rounded">{opts}</select></div>
-                    <div><label class="block mb-1">Start Verse</label><input type="number" name="start" value="1" min="1" class="w-full p-2 border rounded"></div>
-                    <div><label class="block mb-1">End Verse</label><input type="number" name="end" value="5" min="1" class="w-full p-2 border rounded"></div>
-                    <div><label class="block mb-1">Repeats</label><input type="number" name="repeats" value="3" min="1" max="10" class="w-full p-2 border rounded"></div>
+                <div class="form-grid">
+                    <div><label>Chapter</label><select name="chapter">{opts}</select></div>
+                    <div><label>Start Verse</label><input type="number" name="start" value="1" min="1"></div>
+                    <div><label>End Verse</label><input type="number" name="end" value="5" min="1"></div>
+                    <div><label>Repeats</label><input type="number" name="repeats" value="3" min="1" max="10"></div>
                 </div>
-                <button type="submit" class="mt-4 w-full bg-blue-600 text-white py-3 rounded-lg text-lg hover:bg-blue-700">Start Memorizing</button>
+                <button type="submit" class="btn btn-primary">Start Memorizing</button>
             </form>
         </div>
         <div id="session"></div>
@@ -53,7 +83,7 @@ def memorize(chapter: int = Form(...), start: int = Form(...), end: int = Form(.
     pattern_data = [([start + v - 1 for v in nums], reps) for nums, reps in pattern]
     hidden = "".join([f'<input type="hidden" id="v{v["verse_number"]}" value="{v["text_uthmani"]}">' for v in verses.values()])
     return f"""
-<h2 class="text-2xl font-bold mb-4">Memorizing {chapter}:{start}-{end}</h2>
+<h2 style="font-size:1.5rem;margin-bottom:16px">Memorizing {chapter}:{start}-{end}</h2>
 <div id="current-step"></div>
 {hidden}
 <script>
@@ -61,15 +91,15 @@ const pattern = {pattern_data};
 const chapter = {chapter};
 let stepIdx = 0, repIdx = 0;
 function showStep() {{
-    if (stepIdx >= pattern.length) {{ document.getElementById('current-step').innerHTML = '<div class="text-2xl text-center p-8">✅ Session Complete!</div>'; return; }}
+    if (stepIdx >= pattern.length) {{ document.getElementById('current-step').innerHTML = '<div class="complete"><div class="complete-icon">✅</div><div class="complete-text">Session Complete!</div></div>'; return; }}
     const [verses, reps] = pattern[stepIdx];
-    let html = '<div class="mb-4 text-lg font-semibold">Verses ' + verses.join(', ') + ' — Rep ' + (repIdx+1) + '/' + reps + '</div>';
+    let html = '<div class="step-info">Verses ' + verses.join(', ') + ' — Repetition ' + (repIdx+1) + ' of ' + reps + '</div>';
     verses.forEach(v => {{
         const text = document.getElementById('v' + v).value;
         const audio = 'https://verses.quran.com/Alafasy/mp3/' + String(chapter).padStart(3,'0') + String(v).padStart(3,'0') + '.mp3';
-        html += '<div class="bg-white rounded-lg p-6 mb-4 shadow"><div class="text-3xl text-right" dir="rtl" style="font-family: Scheherazade New; line-height:2">' + text + '</div><div class="text-sm text-gray-500 mt-2">' + chapter + ':' + v + '</div><audio src="' + audio + '" controls class="w-full mt-2"></audio></div>';
+        html += '<div class="verse-card"><div class="arabic-text">' + text + '</div><div class="verse-info"><span class="verse-key">' + chapter + ':' + v + '</span></div><audio src="' + audio + '" controls></audio></div>';
     }});
-    html += '<button onclick="nextRep()" class="w-full mt-4 bg-green-600 text-white py-3 rounded-lg text-lg hover:bg-green-700">Next →</button>';
+    html += '<button onclick="nextRep()" class="btn btn-success">Next →</button>';
     document.getElementById('current-step').innerHTML = html;
 }}
 function nextRep() {{
