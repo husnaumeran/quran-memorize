@@ -158,6 +158,9 @@ label { display: flex; align-items: center; gap: 6px; font-size: 0.875rem; color
 .help-link { background: transparent; border: none; color: var(--text-secondary); font-size: 0.875rem; cursor: pointer; text-decoration: underline; white-space: nowrap; }
 .help-link:hover { color: var(--accent); }
 .donate-banner { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 10px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 20px; font-size: 0.875rem; color: var(--text-secondary); }
+.install-banner { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 10px 16px; background: linear-gradient(90deg, #1a472a, #2d5a3d); border-radius: 8px; margin-bottom: 20px; font-size: 0.875rem; }
+.install-btn { background: #22c55e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.install-close { background: transparent; color: var(--text-secondary); border: none; cursor: pointer; font-size: 1.2rem; }
 .donate-btn { background: #ffdd00; color: #000; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.8rem; }
 .donate-btn:hover { background: #e6c700; }
 .ad-space { text-align: center; padding: 20px; margin-top: 30px; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 0.75rem; }
@@ -263,6 +266,7 @@ def home():
             </nav>
         </div>
         <div class="donate-banner"><span>☕ Enjoying this free app?</span><a href="https://buymeacoffee.com/husnau" target="_blank" class="donate-btn">Support the Developer</a></div>
+        <div id="installBanner" class="install-banner" style="display:none;"><span>📱 Install this app on your device!</span><button onclick="installApp()" class="install-btn">Install</button><button onclick="hideInstallBanner()" class="install-close">✕</button></div>
         <div class="card">
             <form hx-post="/memorize" hx-target="#session" hx-swap="innerHTML">
                 <div class="form-grid">
@@ -320,6 +324,10 @@ def home():
         }}
     }}
     document.addEventListener('click', function(e) {{ if (!e.target.closest('.hamburger') && !e.target.closest('.nav-menu')) document.getElementById('navMenu').classList.remove('active'); }});
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {{ e.preventDefault(); deferredPrompt = e; if (!localStorage.getItem('installBannerHidden')) document.getElementById('installBanner').style.display = 'flex'; }});
+    function installApp() {{ if (deferredPrompt) {{ deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => {{ deferredPrompt = null; document.getElementById('installBanner').style.display = 'none'; }}); }} else {{ alert('To install on iOS: tap the Share button, then "Add to Home Screen"'); }} }}
+    function hideInstallBanner() {{ document.getElementById('installBanner').style.display = 'none'; localStorage.setItem('installBannerHidden', 'true'); }}
     </script>
 </body></html>"""
 
