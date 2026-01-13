@@ -37,6 +37,18 @@ def icon():
 
 def get_chapters(): return httpx.get("https://api.quran.com/api/v4/chapters").json()['chapters']
 
+TRANSLATIONS = [
+    (20, "Saheeh International"),
+    (85, "Abdul Haleem"),
+    (22, "Yusuf Ali"),
+    (84, "Mufti Taqi Usmani"),
+    (95, "Maududi (Tafhim)"),
+    (19, "Pickthall"),
+    (149, "Bridges (Fadel Soliman)"),
+    (203, "Al-Hilali & Khan"),
+    (57, "Transliteration"),
+]
+
 RECITERS = [
     (7, "Mishari Rashid al-Afasy"),
     (2, "AbdulBaset AbdulSamad (Murattal)"),
@@ -63,8 +75,10 @@ def get_audio_urls(reciter_id, chapter, verses):
             urls[vk] = "https://verses.quran.com/" + data['audio_files'][0]['url']
     return urls
 
-def get_verses(chapter, start=1, end=10):
+def get_verses(chapter, start=1, end=10, translation_id=None):
     params = dict(fields="text_uthmani", per_page=end)
+    if translation_id:
+        params['translations'] = translation_id
     r = httpx.get(f"https://api.quran.com/api/v4/verses/by_chapter/{chapter}", params=params).json()
     return {v['verse_number']: v for v in r['verses'] if v['verse_number'] >= start and v['verse_number'] <= end}
 
@@ -118,6 +132,7 @@ select:focus, input:focus { outline: none; border-color: var(--accent); }
 .verse-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 16px; display: flex; flex-direction: column; align-items: center; }
 .verse-header { display: flex; align-items: center; justify-content: flex-end; width: 100%; gap: 16px; direction: rtl; }
 .arabic-text { font-family: 'Scheherazade New', 'Traditional Arabic', serif; font-size: 2.5rem; line-height: 2; color: var(--text-primary); }
+.trans-text { font-size: 1rem; color: var(--text-secondary); margin: 12px 0; text-align: center; line-height: 1.6; }
 .verse-badge { width: 50px; height: 50px; border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--accent); position: relative; }
 .verse-badge::before { content: ''; position: absolute; width: 60px; height: 60px; border: 1px solid var(--border); border-radius: 50%; }
 .verse-badge::after { content: ''; position: absolute; width: 40px; height: 40px; border: 1px solid var(--border); border-radius: 50%; }
@@ -167,6 +182,7 @@ def home():
     chapters = get_chapters()
     opts = "".join([f'<option value="{c["id"]}">{c["id"]}. {c["name_simple"]} ({c["name_arabic"]})</option>' for c in chapters])
     reciter_opts = "".join([f'<option value="{rid}">{name}</option>' for rid, name in RECITERS])
+    translation_opts = '<option value="">No Translation</option>' + "".join([f'<option value="{tid}">{name}</option>' for tid, name in TRANSLATIONS])
     return f"""<!DOCTYPE html>
 <html><head>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1408773845403605" crossorigin="anonymous"></script>
@@ -196,6 +212,7 @@ def home():
                 <div class="form-grid">
                     <div><label>Chapter <button type="button" class="help-btn" onclick="showHelp('chapter')">?</button></label><select name="chapter">{opts}</select></div>
                     <div><label>Reciter <button type="button" class="help-btn" onclick="showHelp('reciter')">?</button></label><select name="reciter">{reciter_opts}</select></div>
+                    <div><label>Translation <button type="button" class="help-btn" onclick="showHelp('translation')">?</button></label><select name="translation">{translation_opts}</select></div>
                     <div><label>Start Verse <button type="button" class="help-btn" onclick="showHelp('start')">?</button></label><input type="number" name="start" value="1" min="1"></div>
                     <div><label>End Verse <button type="button" class="help-btn" onclick="showHelp('end')">?</button></label><input type="number" name="end" value="5" min="1"></div>
                     <div><label>Repeats <button type="button" class="help-btn" onclick="showHelp('repeats')">?</button></label><input type="number" name="repeats" value="3" min="1" max="10"></div>
@@ -216,6 +233,7 @@ def home():
     const helpData = {{
         chapter: {{title: 'Chapter (Surah)', text: 'Select which chapter (Surah) of the Quran you want to memorize. The Quran has 114 chapters, each varying in length.'}},
         reciter: {{title: 'Reciter (Qari)', text: 'Choose your preferred Quran reciter. Different reciters have different styles - Murattal is a slower, teaching-pace style while Mujawwad is more melodious.'}},
+        translation: {{title: 'Translation', text: 'Show an English translation below each verse. Select Transliteration for pronunciation help in Latin letters.'}},
         start: {{title: 'Start Verse', text: 'The verse number to begin memorizing from. Each chapter has a different number of verses (Ayat).'}},
         end: {{title: 'End Verse', text: 'The verse number to stop at. Select a small range (3-5 verses) for effective memorization sessions.'}},
         repeats: {{title: 'Repetitions', text: 'How many times each verse (and verse combination) will be repeated. Repetition is key to memorization - 3 times is a good default.'}},
@@ -229,17 +247,25 @@ def home():
 </body></html>"""
 
 @app.post("/memorize", response_class=HTMLResponse)
-def memorize(chapter: int = Form(...), reciter: int = Form(...), start: int = Form(...), end: int = Form(...), repeats: int = Form(...)):
-    verses = get_verses(chapter, start, end)
+def memorize(chapter: int = Form(...), reciter: int = Form(...), translation: str = Form(""), start: int = Form(...), end: int = Form(...), repeats: int = Form(...)):
+    trans_id = int(translation) if translation else None
+    verses = get_verses(chapter, start, end, trans_id)
     audio_urls = get_audio_urls(reciter, chapter, list(verses.keys()))
     pattern = memorize_pattern(end - start + 1, repeats)
     pattern_data = [[([start + v - 1 for v in nums]), reps] for nums, reps in pattern]
     hidden = "".join([f'<input type="hidden" id="v{v["verse_number"]}" value="{v["text_uthmani"]}">' for v in verses.values()])
+    # Store translations
+    trans_hidden = ""
+    if trans_id:
+        for v in verses.values():
+            trans_text = v.get('translations', [{}])[0].get('text', '') if v.get('translations') else ''
+            trans_hidden += f'<input type="hidden" id="t{v["verse_number"]}" value="{trans_text}">'
     audio_hidden = "".join([f'<input type="hidden" id="a{vk.split(":")[1]}" value="{url}">' for vk, url in audio_urls.items()])
     return f"""
 <h2 style="font-size:1.5rem;margin-bottom:16px">Memorizing {chapter}:{start}-{end}</h2>
 <div id="current-step"><button onclick="startSession()" class="btn btn-success" style="font-size:1.5rem;padding:20px 40px">▶ Start Session</button></div>
 {hidden}
+{trans_hidden}
 {audio_hidden}
 <script>
 const pattern = {pattern_data};
@@ -253,7 +279,10 @@ function showStep() {{
     verses.forEach(v => {{
         const text = document.getElementById('v' + v).value;
         const audio = document.getElementById('a' + v).value;
-        html += '<div class="verse-card"><div class="verse-header"><div class="arabic-text">' + text + '</div><div class="verse-badge">' + v + '</div></div><audio src="' + audio + '" controls></audio></div>';
+        const transEl = document.getElementById('t' + v);
+        const trans = transEl ? transEl.value : '';
+        const transHtml = trans ? '<div class="trans-text">' + trans + '</div>' : '';
+        html += '<div class="verse-card"><div class="verse-header"><div class="arabic-text">' + text + '</div><div class="verse-badge">' + v + '</div></div>' + transHtml + '<audio src="' + audio + '" controls></audio></div>';
     }});
     html += '<button onclick="nextRep()" class="btn btn-success">Next →</button>';
     document.getElementById('current-step').innerHTML = html;
