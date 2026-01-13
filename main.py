@@ -102,6 +102,7 @@ audio { width: 100%; margin-top: 12px; border-radius: 8px; }
 def about():
     return f"""<!DOCTYPE html>
 <html><head>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1408773845403605" crossorigin="anonymous"></script>
     <title>About - Quran Memorize</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#2f81f7">
@@ -137,6 +138,7 @@ def home():
     opts = "".join([f'<option value="{c["id"]}">{c["id"]}. {c["name_simple"]} ({c["name_arabic"]})</option>' for c in chapters])
     return f"""<!DOCTYPE html>
 <html><head>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1408773845403605" crossorigin="anonymous"></script>
     <title>Quran Memorize</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#2f81f7">
