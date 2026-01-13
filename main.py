@@ -18,6 +18,10 @@ MANIFEST = {
     ]
 }
 
+@app.get("/ads.txt")
+def ads_txt():
+    return "google.com, pub-1408773845403605, DIRECT, f08c47fec0942fa0"
+
 @app.get("/manifest.json")
 def manifest(): return JSONResponse(MANIFEST)
 
