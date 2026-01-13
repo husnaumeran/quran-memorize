@@ -199,6 +199,7 @@ def home():
     <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&display=swap">
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script>var pattern = [], chapter = 1, stepIdx = 0, repIdx = 0;</script>
     <style>{CSS}</style>
 </head><body>
     <div class="container">
@@ -272,9 +273,9 @@ def memorize(chapter: int = Form(...), reciter: int = Form(...), translation: st
 {trans_hidden}
 {audio_hidden}
 <script>
-const pattern = {pattern_data};
-const chapter = {chapter};
-let stepIdx = 0, repIdx = 0;
+pattern = {pattern_data};
+chapter = {chapter};
+stepIdx = 0; repIdx = 0;
 function startSession() {{ stepIdx = 0; repIdx = 0; showStep(); }}
 function showStep() {{
     if (stepIdx >= pattern.length) {{ document.getElementById('current-step').innerHTML = '<div class="complete"><div class="complete-icon">✅</div><div class="complete-text">Session Complete!</div></div>'; return; }}
