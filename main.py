@@ -37,6 +37,32 @@ def icon():
 
 def get_chapters(): return httpx.get("https://api.quran.com/api/v4/chapters").json()['chapters']
 
+RECITERS = [
+    (7, "Mishari Rashid al-Afasy"),
+    (2, "AbdulBaset AbdulSamad (Murattal)"),
+    (1, "AbdulBaset AbdulSamad (Mujawwad)"),
+    (3, "Abdur-Rahman as-Sudais"),
+    (4, "Abu Bakr al-Shatri"),
+    (5, "Hani ar-Rifai"),
+    (6, "Mahmoud Khalil Al-Husary"),
+    (12, "Mahmoud Khalil Al-Husary (Muallim)"),
+    (9, "Mohamed Siddiq al-Minshawi (Murattal)"),
+    (8, "Mohamed Siddiq al-Minshawi (Mujawwad)"),
+    (10, "Sa`ud ash-Shuraym"),
+    (11, "Mohamed al-Tablawi"),
+]
+
+def get_audio_urls(reciter_id, chapter, verses):
+    """Get audio URLs for verses from API"""
+    verse_keys = [f"{chapter}:{v}" for v in verses]
+    urls = {}
+    for vk in verse_keys:
+        r = httpx.get(f"https://api.quran.com/api/v4/recitations/{reciter_id}/by_ayah/{vk}")
+        data = r.json()
+        if data['audio_files']:
+            urls[vk] = "https://verses.quran.com/" + data['audio_files'][0]['url']
+    return urls
+
 def get_verses(chapter, start=1, end=10):
     params = dict(fields="text_uthmani", per_page=end)
     r = httpx.get(f"https://api.quran.com/api/v4/verses/by_chapter/{chapter}", params=params).json()
@@ -140,6 +166,7 @@ def about():
 def home():
     chapters = get_chapters()
     opts = "".join([f'<option value="{c["id"]}">{c["id"]}. {c["name_simple"]} ({c["name_arabic"]})</option>' for c in chapters])
+    reciter_opts = "".join([f'<option value="{rid}">{name}</option>' for rid, name in RECITERS])
     return f"""<!DOCTYPE html>
 <html><head>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1408773845403605" crossorigin="anonymous"></script>
@@ -168,6 +195,7 @@ def home():
             <form hx-post="/memorize" hx-target="#session" hx-swap="innerHTML">
                 <div class="form-grid">
                     <div><label>Chapter <button type="button" class="help-btn" onclick="showHelp('chapter')">?</button></label><select name="chapter">{opts}</select></div>
+                    <div><label>Reciter <button type="button" class="help-btn" onclick="showHelp('reciter')">?</button></label><select name="reciter">{reciter_opts}</select></div>
                     <div><label>Start Verse <button type="button" class="help-btn" onclick="showHelp('start')">?</button></label><input type="number" name="start" value="1" min="1"></div>
                     <div><label>End Verse <button type="button" class="help-btn" onclick="showHelp('end')">?</button></label><input type="number" name="end" value="5" min="1"></div>
                     <div><label>Repeats <button type="button" class="help-btn" onclick="showHelp('repeats')">?</button></label><input type="number" name="repeats" value="3" min="1" max="10"></div>
@@ -187,6 +215,7 @@ def home():
     <script>
     const helpData = {{
         chapter: {{title: 'Chapter (Surah)', text: 'Select which chapter (Surah) of the Quran you want to memorize. The Quran has 114 chapters, each varying in length.'}},
+        reciter: {{title: 'Reciter (Qari)', text: 'Choose your preferred Quran reciter. Different reciters have different styles - Murattal is a slower, teaching-pace style while Mujawwad is more melodious.'}},
         start: {{title: 'Start Verse', text: 'The verse number to begin memorizing from. Each chapter has a different number of verses (Ayat).'}},
         end: {{title: 'End Verse', text: 'The verse number to stop at. Select a small range (3-5 verses) for effective memorization sessions.'}},
         repeats: {{title: 'Repetitions', text: 'How many times each verse (and verse combination) will be repeated. Repetition is key to memorization - 3 times is a good default.'}},
@@ -200,15 +229,18 @@ def home():
 </body></html>"""
 
 @app.post("/memorize", response_class=HTMLResponse)
-def memorize(chapter: int = Form(...), start: int = Form(...), end: int = Form(...), repeats: int = Form(...)):
+def memorize(chapter: int = Form(...), reciter: int = Form(...), start: int = Form(...), end: int = Form(...), repeats: int = Form(...)):
     verses = get_verses(chapter, start, end)
+    audio_urls = get_audio_urls(reciter, chapter, list(verses.keys()))
     pattern = memorize_pattern(end - start + 1, repeats)
     pattern_data = [[([start + v - 1 for v in nums]), reps] for nums, reps in pattern]
     hidden = "".join([f'<input type="hidden" id="v{v["verse_number"]}" value="{v["text_uthmani"]}">' for v in verses.values()])
+    audio_hidden = "".join([f'<input type="hidden" id="a{vk.split(":")[1]}" value="{url}">' for vk, url in audio_urls.items()])
     return f"""
 <h2 style="font-size:1.5rem;margin-bottom:16px">Memorizing {chapter}:{start}-{end}</h2>
 <div id="current-step"><button onclick="startSession()" class="btn btn-success" style="font-size:1.5rem;padding:20px 40px">▶ Start Session</button></div>
 {hidden}
+{audio_hidden}
 <script>
 const pattern = {pattern_data};
 const chapter = {chapter};
@@ -220,7 +252,7 @@ function showStep() {{
     let html = '<div class="step-info">Verses ' + verses.join(', ') + ' — Repetition ' + (repIdx+1) + ' of ' + reps + '</div>';
     verses.forEach(v => {{
         const text = document.getElementById('v' + v).value;
-        const audio = 'https://verses.quran.com/Alafasy/mp3/' + String(chapter).padStart(3,'0') + String(v).padStart(3,'0') + '.mp3';
+        const audio = document.getElementById('a' + v).value;
         html += '<div class="verse-card"><div class="verse-header"><div class="arabic-text">' + text + '</div><div class="verse-badge">' + v + '</div></div><audio src="' + audio + '" controls></audio></div>';
     }});
     html += '<button onclick="nextRep()" class="btn btn-success">Next →</button>';
