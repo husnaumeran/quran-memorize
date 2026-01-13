@@ -37,17 +37,62 @@ def icon():
 
 def get_chapters(): return httpx.get("https://api.quran.com/api/v4/chapters").json()['chapters']
 
-TRANSLATIONS = [
-    (20, "Saheeh International"),
-    (85, "Abdul Haleem"),
-    (22, "Yusuf Ali"),
-    (84, "Mufti Taqi Usmani"),
-    (95, "Maududi (Tafhim)"),
-    (19, "Pickthall"),
-    (149, "Bridges (Fadel Soliman)"),
-    (203, "Al-Hilali & Khan"),
-    (57, "Transliteration"),
-]
+TRANSLATIONS = {
+    "english": [
+        (20, "Saheeh International (Popular)"),
+        (85, "Abdul Haleem (Modern)"),
+        (22, "Yusuf Ali (Classic)"),
+        (84, "Mufti Taqi Usmani"),
+        (95, "Maududi (Tafhim)"),
+        (19, "Pickthall"),
+        (149, "Bridges (Fadel Soliman)"),
+        (203, "Al-Hilali & Khan"),
+        (57, "Transliteration"),
+    ],
+    "urdu": [
+        (97, "Ahmed Ali"),
+        (158, "Fateh Muhammad Jalandhry"),
+        (234, "Maulana Junagarhi"),
+        (54, "Maududi (Tafheem ul Quran)"),
+    ],
+    "french": [
+        (31, "Muhammad Hamidullah"),
+        (136, "Rashid Maash"),
+    ],
+    "spanish": [
+        (83, "Julio Cortes"),
+        (140, "Muhammad Isa Garcia"),
+    ],
+    "turkish": [
+        (52, "Diyanet Isleri"),
+        (124, "Elmalili Hamdi Yazir"),
+    ],
+    "indonesian": [
+        (33, "Indonesian Ministry of Religious Affairs"),
+        (134, "Tafsir Jalalayn"),
+    ],
+    "bengali": [
+        (161, "Muhiuddin Khan"),
+        (163, "Taisirul Quran"),
+    ],
+    "hindi": [
+        (122, "Suhel Farooq Khan / Saifur Rahman Nadwi"),
+    ],
+    "malay": [
+        (39, "Abdullah Basmeih"),
+    ],
+    "russian": [
+        (45, "Elmir Kuliev"),
+        (79, "Abu Adel"),
+    ],
+    "german": [
+        (27, "Abu Rida Muhammad ibn Ahmad ibn Rassoul"),
+        (208, "Bubenheim & Elyas"),
+    ],
+    "chinese": [
+        (56, "Ma Jian"),
+    ],
+}
 
 RECITERS = [
     (7, "Mishari Rashid al-Afasy"),
@@ -186,7 +231,9 @@ def home():
     chapters = get_chapters()
     opts = "".join([f'<option value="{c["id"]}">{c["id"]}. {c["name_simple"]} ({c["name_arabic"]})</option>' for c in chapters])
     reciter_opts = "".join([f'<option value="{rid}">{name}</option>' for rid, name in RECITERS])
-    translation_opts = '<option value="">No Translation</option>' + "".join([f'<option value="{tid}">{name}</option>' for tid, name in TRANSLATIONS])
+    import json
+    lang_opts = '<option value="">No Translation</option>' + "".join([f'<option value="{lang}">{lang.title()}</option>' for lang in TRANSLATIONS.keys()])
+    translations_json = json.dumps(TRANSLATIONS)
     return f"""<!DOCTYPE html>
 <html><head>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1408773845403605" crossorigin="anonymous"></script>
@@ -217,7 +264,8 @@ def home():
                 <div class="form-grid">
                     <div><label>Chapter <button type="button" class="help-btn" onclick="showHelp('chapter')">?</button></label><select name="chapter">{opts}</select></div>
                     <div><label>Reciter <button type="button" class="help-btn" onclick="showHelp('reciter')">?</button></label><select name="reciter">{reciter_opts}</select></div>
-                    <div><label>Translation <button type="button" class="help-btn" onclick="showHelp('translation')">?</button></label><select name="translation">{translation_opts}</select></div>
+                    <div><label>Language <button type="button" class="help-btn" onclick="showHelp('translation')">?</button></label><select name="language" onchange="updateTranslations(this.value)">{lang_opts}</select></div>
+                    <div><label>Translation</label><select name="translation" id="translationSelect"><option value="">Select language first</option></select></div>
                     <div><label>Start Verse <button type="button" class="help-btn" onclick="showHelp('start')">?</button></label><input type="number" name="start" value="1" min="1"></div>
                     <div><label>End Verse <button type="button" class="help-btn" onclick="showHelp('end')">?</button></label><input type="number" name="end" value="5" min="1"></div>
                     <div><label>Repeats <button type="button" class="help-btn" onclick="showHelp('repeats')">?</button></label><input type="number" name="repeats" value="3" min="1" max="10"></div>
@@ -247,6 +295,16 @@ def home():
     function showHelp(key) {{ document.getElementById('help-title').textContent = helpData[key].title; document.getElementById('help-text').innerHTML = helpData[key].text; document.getElementById('help-popup').classList.add('active'); }}
     function hideHelp() {{ document.getElementById('help-popup').classList.remove('active'); }}
     function toggleMenu() {{ document.getElementById('navMenu').classList.toggle('active'); }}
+    const translationsData = {translations_json};
+    function updateTranslations(lang) {{
+        const select = document.getElementById('translationSelect');
+        select.innerHTML = '<option value="">No Translation</option>';
+        if (lang && translationsData[lang]) {{
+            translationsData[lang].forEach(([id, name]) => {{
+                select.innerHTML += `<option value="${{id}}">${{name}}</option>`;
+            }});
+        }}
+    }}
     document.addEventListener('click', function(e) {{ if (!e.target.closest('.hamburger') && !e.target.closest('.nav-menu')) document.getElementById('navMenu').classList.remove('active'); }});
     </script>
 </body></html>"""
