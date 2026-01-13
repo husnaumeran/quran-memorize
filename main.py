@@ -267,8 +267,8 @@ def home():
                 <div class="form-grid">
                     <div><label>Chapter <button type="button" class="help-btn" onclick="showHelp('chapter')">?</button></label><select name="chapter" onchange="updateVerseLimit(this.value)">{opts}</select><small id="verseCount" style="color: var(--text-secondary); margin-top: 4px; display: block;">7 verses</small></div>
                     <div><label>Reciter <button type="button" class="help-btn" onclick="showHelp('reciter')">?</button></label><select name="reciter">{reciter_opts}</select></div>
-                    <div><label>Language <button type="button" class="help-btn" onclick="showHelp('translation')">?</button></label><select name="language" onchange="updateTranslations(this.value)">{lang_opts}</select></div>
-                    <div><label>Translation</label><select name="translation" id="translationSelect"><option value="">Select language first</option></select></div>
+                    <div><label>Language <button type="button" class="help-btn" onclick="showHelp('language')">?</button></label><select name="language" onchange="updateTranslations(this.value)">{lang_opts}</select></div>
+                    <div><label>Translation <button type="button" class="help-btn" onclick="showHelp('translation')">?</button></label><select name="translation" id="translationSelect"><option value="">Select language first</option></select></div>
                     <div><label>Start Verse <button type="button" class="help-btn" onclick="showHelp('start')">?</button></label><input type="number" name="start" value="1" min="1"></div>
                     <div><label>End Verse <button type="button" class="help-btn" onclick="showHelp('end')">?</button></label><input type="number" name="end" value="5" min="1"></div>
                     <div><label>Repeats <button type="button" class="help-btn" onclick="showHelp('repeats')">?</button></label><input type="number" name="repeats" value="3" min="1" max="10"></div>
@@ -289,7 +289,8 @@ def home():
     const helpData = {{
         chapter: {{title: 'Chapter (Surah)', text: 'Select which chapter (Surah) of the Quran you want to memorize. The Quran has 114 chapters, each varying in length.'}},
         reciter: {{title: 'Reciter (Qari)', text: 'Choose your preferred Quran reciter. Different reciters have different styles - Murattal is a slower, teaching-pace style while Mujawwad is more melodious.'}},
-        translation: {{title: 'Translation', text: 'Show an English translation below each verse. Select Transliteration for pronunciation help in Latin letters.'}},
+        language: {{title: 'Language', text: 'Select the language for translation. Choose from 69 available languages including English, Urdu, Arabic, French, and more.'}},
+        translation: {{title: 'Translation', text: 'Select a specific translation in your chosen language. Different scholars offer different interpretations and styles.'}},
         start: {{title: 'Start Verse', text: 'The verse number to begin memorizing from. Each chapter has a different number of verses (Ayat).'}},
         end: {{title: 'End Verse', text: 'The verse number to stop at. Select a small range (3-5 verses) for effective memorization sessions.'}},
         repeats: {{title: 'Repetitions', text: 'How many times each verse (and verse combination) will be repeated. Repetition is key to memorization - 3 times is a good default.'}},
