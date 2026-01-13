@@ -148,7 +148,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .nav-menu a:last-child { border-bottom: none; }
 .nav-menu a:hover { background: var(--bg-secondary); color: var(--accent); }
 .header h1 { font-size: 2.5rem; font-weight: 700; background: linear-gradient(90deg, var(--accent), #a371f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding-right: 40px; }
-@media (max-width: 480px) { .header h1 { font-size: 1.8rem; } }
+@media (max-width: 480px) { .header h1 { font-size: 2.2rem; } }
 .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
 .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 @media (max-width: 768px) { .form-grid { grid-template-columns: repeat(2, 1fr); } }
