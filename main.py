@@ -172,8 +172,8 @@ def about():
         </div>
         <div class="card" style="text-align: center;">
             <a href="/" class="btn btn-primary" style="display: inline-block; width: auto; padding: 12px 32px; text-decoration: none;">← Back to App</a>
+            <div class="ad-space" style="margin-top: 20px;"><small>Ad space - <a href="mailto:husna.umeran.1007@gmail.com?subject=Advertising on Quran Memorize">Advertise here</a> | <a href="mailto:husna.umeran.1007@gmail.com?subject=Feedback/Suggestion for Quran Memorize">Suggestions & Feedback</a></small></div>
         </div>
-        <div class="ad-space"><small>Ad space - <a href="mailto:husna.umeran.1007@gmail.com?subject=Advertising on Quran Memorize">Advertise here</a> | <a href="mailto:husna.umeran.1007@gmail.com?subject=Feedback/Suggestion for Quran Memorize">Suggestions & Feedback</a></small></div>
     </div>
 </body></html>"""
 
