@@ -1,8 +1,35 @@
 from fastapi import FastAPI, Form
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 import httpx
 
 app = FastAPI()
+
+MANIFEST = {
+    "name": "Quran Memorize",
+    "short_name": "QuranMemo",
+    "description": "Memorize the Quran with proven repetition techniques",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0d1117",
+    "theme_color": "#2f81f7",
+    "icons": [
+        {"src": "/icon-192.png", "sizes": "192x192", "type": "image/png"},
+        {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png"}
+    ]
+}
+
+@app.get("/manifest.json")
+def manifest(): return JSONResponse(MANIFEST)
+
+@app.get("/sw.js")
+def service_worker():
+    return HTMLResponse(content="self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));", media_type="application/javascript")
+
+@app.get("/icon-192.png")
+@app.get("/icon-512.png")
+def icon():
+    svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="#2f81f7" width="100" height="100" rx="20"/><text x="50" y="65" font-size="50" text-anchor="middle" fill="white">📖</text></svg>'
+    return HTMLResponse(content=svg, media_type="image/svg+xml")
 
 def get_chapters(): return httpx.get("https://api.quran.com/api/v4/chapters").json()['chapters']
 
@@ -23,7 +50,14 @@ CSS = """
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; }
 .container { max-width: 900px; margin: 0 auto; padding: 20px; }
-.header { text-align: center; padding: 30px 0; border-bottom: 1px solid var(--border); margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.header { text-align: center; padding: 30px 0; border-bottom: 1px solid var(--border); margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; }
+.hamburger { position: absolute; right: 0; top: 30px; background: transparent; border: none; cursor: pointer; padding: 8px; }
+.hamburger span { display: block; width: 24px; height: 3px; background: var(--text-primary); margin: 5px 0; border-radius: 2px; transition: 0.3s; }
+.nav-menu { display: none; position: absolute; right: 0; top: 70px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; min-width: 180px; z-index: 50; overflow: hidden; }
+.nav-menu.active { display: block; }
+.nav-menu a { display: block; padding: 12px 16px; color: var(--text-primary); text-decoration: none; border-bottom: 1px solid var(--border); }
+.nav-menu a:last-child { border-bottom: none; }
+.nav-menu a:hover { background: var(--bg-secondary); color: var(--accent); }
 .header h1 { font-size: 2.5rem; font-weight: 700; background: linear-gradient(90deg, var(--accent), #a371f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
 .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
@@ -64,6 +98,39 @@ audio { width: 100%; margin-top: 12px; border-radius: 8px; }
 .complete-text { font-size: 1.5rem; color: var(--success); }
 """
 
+@app.get("/about", response_class=HTMLResponse)
+def about():
+    return f"""<!DOCTYPE html>
+<html><head>
+    <title>About - Quran Memorize</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#2f81f7">
+    <link rel="manifest" href="/manifest.json">
+    <style>{CSS}</style>
+</head><body>
+    <div class="container">
+        <div class="header"><h1>About Quran Memorize</h1></div>
+        <div class="card">
+            <h3 style="color: var(--accent); margin-bottom: 16px;">Our Mission</h3>
+            <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 20px;">
+                Quran Memorize is a free tool designed to help Muslims memorize the Holy Quran using proven repetition techniques. 
+                Our app plays verses and their combinations multiple times, making it easier to commit them to memory.
+            </p>
+            <h3 style="color: var(--accent); margin-bottom: 16px;">Features</h3>
+            <ul style="color: var(--text-secondary); line-height: 2; padding-left: 20px;">
+                <li>Progressive repetition pattern for effective memorization</li>
+                <li>Audio from renowned reciter Sheikh Mishary Alafasy</li>
+                <li>Works offline as a PWA (installable app)</li>
+                <li>Free and open for everyone</li>
+            </ul>
+        </div>
+        <div class="card" style="text-align: center;">
+            <a href="/" class="btn btn-primary" style="display: inline-block; width: auto; padding: 12px 32px; text-decoration: none;">← Back to App</a>
+        </div>
+        <div class="ad-space"><small>Ad space - <a href="mailto:your@email.com">Advertise here</a></small></div>
+    </div>
+</body></html>"""
+
 @app.get("/", response_class=HTMLResponse)
 def home():
     chapters = get_chapters()
@@ -72,12 +139,24 @@ def home():
 <html><head>
     <title>Quran Memorize</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#2f81f7">
+    <meta name="description" content="Memorize the Quran with proven repetition techniques">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&display=swap">
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <style>{CSS}</style>
 </head><body>
     <div class="container">
-        <div class="header"><h1>Quran Memorize</h1><button type="button" class="help-link" onclick="showHelp('howto')">How does this app work?</button></div>
+        <div class="header">
+            <h1>Quran Memorize</h1>
+            <button class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></button>
+            <nav class="nav-menu" id="navMenu">
+                <a href="#" onclick="showHelp(\'howto\'); toggleMenu();">How It Works</a>
+                <a href="/about">About</a>
+            </nav>
+        </div>
         <div class="donate-banner"><span>☕ Enjoying this free app?</span><a href="https://buymeacoffee.com/husnau" target="_blank" class="donate-btn">Support the Developer</a></div>
         <div class="card">
             <form hx-post="/memorize" hx-target="#session" hx-swap="innerHTML">
@@ -91,7 +170,6 @@ def home():
             </form>
         </div>
         <div id="session"></div>
-        <div class="ad-space"><small>Ad space - <a href="mailto:your@email.com">Advertise here</a></small></div>
     </div>
     <div id="help-popup" class="help-popup" onclick="hideHelp()">
         <div class="help-content" onclick="event.stopPropagation()">
@@ -110,6 +188,8 @@ def home():
     }};
     function showHelp(key) {{ document.getElementById('help-title').textContent = helpData[key].title; document.getElementById('help-text').innerHTML = helpData[key].text; document.getElementById('help-popup').classList.add('active'); }}
     function hideHelp() {{ document.getElementById('help-popup').classList.remove('active'); }}
+    function toggleMenu() {{ document.getElementById('navMenu').classList.toggle('active'); }}
+    document.addEventListener('click', function(e) {{ if (!e.target.closest('.hamburger') && !e.target.closest('.nav-menu')) document.getElementById('navMenu').classList.remove('active'); }});
     </script>
 </body></html>"""
 
