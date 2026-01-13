@@ -207,7 +207,7 @@ def memorize(chapter: int = Form(...), start: int = Form(...), end: int = Form(.
 const pattern = {pattern_data};
 const chapter = {chapter};
 let stepIdx = 0, repIdx = 0;
-function startSession() {{ showStep(); }}
+function startSession() {{ stepIdx = 0; repIdx = 0; showStep(); }}
 function showStep() {{
     if (stepIdx >= pattern.length) {{ document.getElementById('current-step').innerHTML = '<div class="complete"><div class="complete-icon">✅</div><div class="complete-text">Session Complete!</div></div>'; return; }}
     const [verses, reps] = pattern[stepIdx];
