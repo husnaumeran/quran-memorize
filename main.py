@@ -96,15 +96,15 @@ TRANSLATIONS = {
 
 RECITERS = [
     (7, "Mishari Rashid al-Afasy"),
-    (2, "AbdulBaset AbdulSamad (Murattal)"),
-    (1, "AbdulBaset AbdulSamad (Mujawwad)"),
+    (2, "AbdulBaset AbdulSamad - Murattal (Teaching pace)"),
+    (1, "AbdulBaset AbdulSamad - Mujawwad (Melodious)"),
     (3, "Abdur-Rahman as-Sudais"),
     (4, "Abu Bakr al-Shatri"),
     (5, "Hani ar-Rifai"),
     (6, "Mahmoud Khalil Al-Husary"),
-    (12, "Mahmoud Khalil Al-Husary (Muallim)"),
-    (9, "Mohamed Siddiq al-Minshawi (Murattal)"),
-    (8, "Mohamed Siddiq al-Minshawi (Mujawwad)"),
+    (12, "Mahmoud Khalil Al-Husary - Muallim (Teacher style)"),
+    (9, "Mohamed Siddiq al-Minshawi - Murattal (Teaching pace)"),
+    (8, "Mohamed Siddiq al-Minshawi - Mujawwad (Melodious)"),
     (10, "Sa`ud ash-Shuraym"),
     (11, "Mohamed al-Tablawi"),
 ]
@@ -231,6 +231,9 @@ def home():
     chapters = get_chapters()
     opts = "".join([f'<option value="{c["id"]}">{c["id"]}. {c["name_simple"]} ({c["name_arabic"]})</option>' for c in chapters])
     reciter_opts = "".join([f'<option value="{rid}">{name}</option>' for rid, name in RECITERS])
+    verse_counts = {c['id']: c['verses_count'] for c in chapters}
+    import json
+    verse_counts_json = json.dumps(verse_counts)
     import json
     lang_opts = '<option value="">No Translation</option>' + "".join([f'<option value="{lang}">{lang.title()}</option>' for lang in TRANSLATIONS.keys()])
     translations_json = json.dumps(TRANSLATIONS)
@@ -262,7 +265,7 @@ def home():
         <div class="card">
             <form hx-post="/memorize" hx-target="#session" hx-swap="innerHTML">
                 <div class="form-grid">
-                    <div><label>Chapter <button type="button" class="help-btn" onclick="showHelp('chapter')">?</button></label><select name="chapter">{opts}</select></div>
+                    <div><label>Chapter <button type="button" class="help-btn" onclick="showHelp('chapter')">?</button></label><select name="chapter" onchange="updateVerseLimit(this.value)">{opts}</select><small id="verseCount" style="color: var(--text-secondary); margin-top: 4px; display: block;">7 verses</small></div>
                     <div><label>Reciter <button type="button" class="help-btn" onclick="showHelp('reciter')">?</button></label><select name="reciter">{reciter_opts}</select></div>
                     <div><label>Language <button type="button" class="help-btn" onclick="showHelp('translation')">?</button></label><select name="language" onchange="updateTranslations(this.value)">{lang_opts}</select></div>
                     <div><label>Translation</label><select name="translation" id="translationSelect"><option value="">Select language first</option></select></div>
@@ -296,6 +299,15 @@ def home():
     function hideHelp() {{ document.getElementById('help-popup').classList.remove('active'); }}
     function toggleMenu() {{ document.getElementById('navMenu').classList.toggle('active'); }}
     const translationsData = {translations_json};
+    const verseCounts = {verse_counts_json};
+    function updateVerseLimit(chapterId) {{
+        const max = verseCounts[chapterId] || 286;
+        document.querySelector('input[name="start"]').max = max;
+        document.querySelector('input[name="end"]').max = max;
+        document.querySelector('input[name="end"]').value = Math.min(document.querySelector('input[name="end"]').value, max);
+        document.querySelector('input[name="start"]').value = Math.min(document.querySelector('input[name="start"]').value, max);
+        document.getElementById('verseCount').textContent = max + ' verses';
+    }}
     function updateTranslations(lang) {{
         const select = document.getElementById('translationSelect');
         select.innerHTML = '<option value="">No Translation</option>';
