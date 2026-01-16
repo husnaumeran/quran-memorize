@@ -269,7 +269,7 @@ def home():
         <div class="donate-banner"><span>☕ Enjoying this free app?</span><a href="https://buymeacoffee.com/husnau" target="_blank" class="donate-btn">Support the Developer</a></div>
         <div id="installBanner" class="install-banner" style="display:none;"><span>📱 Install this app on your device!</span><button onclick="installApp()" class="install-btn">Install</button><button onclick="hideInstallBanner()" class="install-close">✕</button></div>
         <div class="card">
-            <form hx-post="/memorize" hx-target="#session" hx-swap="innerHTML" onsubmit="return validateForm()">
+            <form id="memorizeForm" hx-post="/memorize" hx-target="#session" hx-swap="innerHTML" novalidate>
                 <div class="form-grid">
                     <div><label>Chapter <button type="button" class="help-btn" onclick="showHelp('chapter')">?</button></label><select name="chapter" onchange="updateVerseLimit(this.value)">{opts}</select><small id="verseCount" style="color: var(--text-secondary); margin-top: 4px; display: block;">7 verses</small></div>
                     <div><label>Reciter <button type="button" class="help-btn" onclick="showHelp('reciter')">?</button></label><select name="reciter">{reciter_opts}</select></div>
@@ -329,6 +329,11 @@ def home():
         if (end - start + 1 > maxVerses) {{ document.getElementById('endError').textContent = 'Max ' + maxVerses + ' verses for this mode'; valid = false; }}
         return valid;
     }}
+    document.addEventListener('DOMContentLoaded', function() {{
+        document.getElementById('memorizeForm').addEventListener('htmx:confirm', function(e) {{
+            if (!validateForm()) {{ e.preventDefault(); }}
+        }});
+    }});
     function updateTranslations(lang) {{
         const select = document.getElementById('translationSelect');
         select.innerHTML = '<option value="">No Translation</option>';
