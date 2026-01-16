@@ -298,8 +298,8 @@ def home():
         translation: {{title: 'Translation', text: 'Select a specific translation in your chosen language. Different scholars offer different interpretations and styles.'}},
         start: {{title: 'Start Verse', text: 'The verse number to begin memorizing from. Each chapter has a different number of verses (Ayat).'}},
         end: {{title: 'End Verse', text: 'The verse number to stop at. Select a small range (3-5 verses) for effective memorization sessions.'}},
-        repeats: {{title: 'Repetitions', text: 'How many times each verse (and verse combination) will be repeated. Repetition is key to memorization - 3 times is a good default.'}},
-        howto: {{title: 'How It Works', text: '<ul style="text-align:left;margin:0;padding-left:20px"><li>Each verse is repeated individually first</li><li>Verses are then combined progressively (1+2, then 1+2+3, etc.)</li><li>Each combination is repeated multiple times</li><li>Audio plays automatically - just listen and recite along</li></ul>'}}
+        repeats: {{title: 'Repetitions', text: '<b>Memorization mode (2+):</b> Repeats each verse and builds combinations. Max 30 verses per session.<br><br><b>Listen mode (1):</b> Plays through all verses once without repetition. No verse limit.'}},
+        howto: {{title: 'How It Works', text: '<ul style="text-align:left;margin:0;padding-left:20px"><li><b>Memorization (repeat 2+):</b> Each verse repeats, then builds combinations (1, 2, 1+2, 3, 1+2+3...). Max 30 verses.</li><li><b>Listen (repeat 1):</b> Plays all verses once, no limit.</li><li>Audio plays automatically - listen and recite along!</li><li>Choose reciter, language, and translation to customize your experience.</li></ul>'}}
     }};
     function showHelp(key) {{ document.getElementById('help-title').textContent = helpData[key].title; document.getElementById('help-text').innerHTML = helpData[key].text; document.getElementById('help-popup').classList.add('active'); }}
     function hideHelp() {{ document.getElementById('help-popup').classList.remove('active'); }}
