@@ -110,14 +110,14 @@ RECITERS = [
 ]
 
 def get_audio_urls(reciter_id, chapter, verses):
-    """Get audio URLs for verses from API - fetch only needed range"""
-    start_v, end_v = min(verses), max(verses)
-    verse_range = f"{chapter}:{start_v}-{chapter}:{end_v}"
-    r = httpx.get(f"https://api.quran.com/api/v4/recitations/{reciter_id}/by_ayah/{verse_range}")
+    """Get audio URLs for verses from API - single batch request"""
+    r = httpx.get(f"https://api.quran.com/api/v4/recitations/{reciter_id}/by_chapter/{chapter}", params={"per_page": 300})
     data = r.json()
     urls = {}
     for af in data.get('audio_files', []):
-        urls[af['verse_key']] = "https://verses.quran.com/" + af['url']
+        v = int(af['verse_key'].split(':')[1])
+        if v in verses:
+            urls[af['verse_key']] = "https://verses.quran.com/" + af['url']
     return urls
 
 def get_verses(chapter, start=1, end=10, translation_id=None):
