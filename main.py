@@ -333,6 +333,10 @@ def home():
 
 @app.post("/memorize", response_class=HTMLResponse)
 def memorize(chapter: int = Form(...), reciter: int = Form(...), translation: str = Form(""), start: int = Form(...), end: int = Form(...), repeats: int = Form(...)):
+    # Cap at 30 verses for memorization (repeat 2+), no cap for listen mode (repeat 1)
+    max_verses = 30 if repeats > 1 else 300
+    if end - start + 1 > max_verses:
+        end = start + max_verses - 1
     trans_id = int(translation) if translation else None
     verses = get_verses(chapter, start, end, trans_id)
     audio_urls = get_audio_urls(reciter, chapter, list(verses.keys()))
