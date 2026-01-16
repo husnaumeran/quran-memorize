@@ -268,7 +268,7 @@ def home():
         <div class="donate-banner"><span>☕ Enjoying this free app?</span><a href="https://buymeacoffee.com/husnau" target="_blank" class="donate-btn">Support the Developer</a></div>
         <div id="installBanner" class="install-banner" style="display:none;"><span>📱 Install this app on your device!</span><button onclick="installApp()" class="install-btn">Install</button><button onclick="hideInstallBanner()" class="install-close">✕</button></div>
         <div class="card">
-            <form hx-post="/memorize" hx-target="#session" hx-swap="innerHTML">
+            <form hx-post="/memorize" hx-target="#session" hx-swap="innerHTML" onsubmit="return validateForm()">
                 <div class="form-grid">
                     <div><label>Chapter <button type="button" class="help-btn" onclick="showHelp('chapter')">?</button></label><select name="chapter" onchange="updateVerseLimit(this.value)">{opts}</select><small id="verseCount" style="color: var(--text-secondary); margin-top: 4px; display: block;">7 verses</small></div>
                     <div><label>Reciter <button type="button" class="help-btn" onclick="showHelp('reciter')">?</button></label><select name="reciter">{reciter_opts}</select></div>
@@ -314,6 +314,16 @@ def home():
         document.querySelector('input[name="start"]').value = Math.min(document.querySelector('input[name="start"]').value, max);
         document.getElementById('verseCount').textContent = max + ' verses';
     }}
+    function validateForm() {{
+        const start = parseInt(document.querySelector('input[name="start"]').value) || 1;
+        const end = parseInt(document.querySelector('input[name="end"]').value) || 1;
+        const repeats = parseInt(document.querySelector('input[name="repeats"]').value) || 1;
+        if (start < 1 || end < 1 || repeats < 1) {{ alert('Values must be at least 1'); return false; }}
+        if (start > end) {{ alert('Start verse cannot be greater than end verse'); return false; }}
+        const maxVerses = repeats > 1 ? 30 : 300;
+        if (end - start + 1 > maxVerses) {{ alert('Max ' + maxVerses + ' verses for ' + (repeats > 1 ? 'memorization' : 'listen') + ' mode'); return false; }}
+        return true;
+    }}
     function updateTranslations(lang) {{
         const select = document.getElementById('translationSelect');
         select.innerHTML = '<option value="">No Translation</option>';
@@ -333,6 +343,12 @@ def home():
 
 @app.post("/memorize", response_class=HTMLResponse)
 def memorize(chapter: int = Form(...), reciter: int = Form(...), translation: str = Form(""), start: int = Form(...), end: int = Form(...), repeats: int = Form(...)):
+    # Server-side validation
+    if start < 1: start = 1
+    if end < 1: end = 1
+    if repeats < 1: repeats = 1
+    if start > end: start, end = end, start
+    if chapter < 1 or chapter > 114: chapter = 1
     # Cap at 30 verses for memorization (repeat 2+), no cap for listen mode (repeat 1)
     max_verses = 30 if repeats > 1 else 300
     if end - start + 1 > max_verses:
