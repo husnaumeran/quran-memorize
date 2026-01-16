@@ -158,6 +158,7 @@ label { display: flex; align-items: center; gap: 6px; font-size: 0.875rem; color
 .help-link { background: transparent; border: none; color: var(--text-secondary); font-size: 0.875rem; cursor: pointer; text-decoration: underline; white-space: nowrap; }
 .help-link:hover { color: var(--accent); }
 .donate-banner { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 10px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 20px; font-size: 0.875rem; color: var(--text-secondary); }
+.error-msg { color: #f87171; font-size: 0.75rem; display: block; margin-top: 4px; }
 .install-banner { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 10px 16px; background: linear-gradient(90deg, #1a472a, #2d5a3d); border-radius: 8px; margin-bottom: 20px; font-size: 0.875rem; }
 .install-btn { background: #22c55e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; }
 .install-close { background: transparent; color: var(--text-secondary); border: none; cursor: pointer; font-size: 1.2rem; }
@@ -274,9 +275,9 @@ def home():
                     <div><label>Reciter <button type="button" class="help-btn" onclick="showHelp('reciter')">?</button></label><select name="reciter">{reciter_opts}</select></div>
                     <div><label>Language <button type="button" class="help-btn" onclick="showHelp('language')">?</button></label><select name="language" onchange="updateTranslations(this.value)">{lang_opts}</select></div>
                     <div><label>Translation <button type="button" class="help-btn" onclick="showHelp('translation')">?</button></label><select name="translation" id="translationSelect"><option value="">Select language first</option></select></div>
-                    <div><label>Start Verse <button type="button" class="help-btn" onclick="showHelp('start')">?</button></label><input type="number" name="start" value="1" min="1"></div>
-                    <div><label>End Verse <button type="button" class="help-btn" onclick="showHelp('end')">?</button></label><input type="number" name="end" value="5" min="1"></div>
-                    <div><label>Repeats <button type="button" class="help-btn" onclick="showHelp('repeats')">?</button></label><input type="number" name="repeats" value="3" min="1" max="10"></div>
+                    <div><label>Start Verse <button type="button" class="help-btn" onclick="showHelp('start')">?</button></label><input type="number" name="start" value="1" min="1"><span class="error-msg" id="startError"></span></div>
+                    <div><label>End Verse <button type="button" class="help-btn" onclick="showHelp('end')">?</button></label><input type="number" name="end" value="5" min="1"><span class="error-msg" id="endError"></span></div>
+                    <div><label>Repeats <button type="button" class="help-btn" onclick="showHelp('repeats')">?</button></label><input type="number" name="repeats" value="3" min="1" max="10"><span class="error-msg" id="repeatsError"></span></div>
                 </div>
                 <button type="submit" class="btn btn-primary">Start Memorizing</button>
             </form>
@@ -315,14 +316,18 @@ def home():
         document.getElementById('verseCount').textContent = max + ' verses';
     }}
     function validateForm() {{
-        const start = parseInt(document.querySelector('input[name="start"]').value) || 1;
-        const end = parseInt(document.querySelector('input[name="end"]').value) || 1;
-        const repeats = parseInt(document.querySelector('input[name="repeats"]').value) || 1;
-        if (start < 1 || end < 1 || repeats < 1) {{ alert('Values must be at least 1'); return false; }}
-        if (start > end) {{ alert('Start verse cannot be greater than end verse'); return false; }}
+        document.querySelectorAll('.error-msg').forEach(e => e.textContent = '');
+        const start = parseInt(document.querySelector('input[name="start"]').value) || 0;
+        const end = parseInt(document.querySelector('input[name="end"]').value) || 0;
+        const repeats = parseInt(document.querySelector('input[name="repeats"]').value) || 0;
+        let valid = true;
+        if (start < 1) {{ document.getElementById('startError').textContent = 'Must be at least 1'; valid = false; }}
+        if (end < 1) {{ document.getElementById('endError').textContent = 'Must be at least 1'; valid = false; }}
+        if (repeats < 1) {{ document.getElementById('repeatsError').textContent = 'Must be at least 1'; valid = false; }}
+        if (start > end) {{ document.getElementById('endError').textContent = 'Must be ≥ start verse'; valid = false; }}
         const maxVerses = repeats > 1 ? 30 : 300;
-        if (end - start + 1 > maxVerses) {{ alert('Max ' + maxVerses + ' verses for ' + (repeats > 1 ? 'memorization' : 'listen') + ' mode'); return false; }}
-        return true;
+        if (end - start + 1 > maxVerses) {{ document.getElementById('endError').textContent = 'Max ' + maxVerses + ' verses for this mode'; valid = false; }}
+        return valid;
     }}
     function updateTranslations(lang) {{
         const select = document.getElementById('translationSelect');
